@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>灯箱运营台 · 点位 / 亮灯 / 巡检 / 派单 / 补播</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">▣</span>
+    <div>
+      <h1>灯箱运营台</h1>
+      <p>点位地图 · 亮灯计划 · 巡检照片 · 维修派单 · 补播核算</p>
+    </div>
+  </div>
+  <div class="clock" id="clock">加载中…</div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="map">点位地图</button>
+  <button class="tab" data-tab="list">灯箱列表</button>
+  <button class="tab" data-tab="faults">故障与派单 <span class="badge" id="faultBadge"></span></button>
+  <button class="tab" data-tab="inspect">巡检 / 信号台</button>
+</nav>
+
+<main>
+  <!-- ============ 地图 ============ -->
+  <section id="tab-map" class="panel active">
+    <div class="panel-head">
+      <h2>点位地图</h2>
+      <p class="hint">标记显示灯箱编号与最近亮灯证据；点击标记查看故障详情。</p>
+    </div>
+    <div class="map-wrap">
+      <svg id="map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="legend" id="mapLegend"></div>
+  </section>
+
+  <!-- ============ 列表 ============ -->
+  <section id="tab-list" class="panel">
+    <div class="panel-head">
+      <h2>灯箱列表</h2>
+      <p class="hint">每盏灯箱的编号、当前画面合同、亮灯计划与最近亮灯证据。</p>
+    </div>
+    <div class="table-wrap">
+      <table id="boxTable">
+        <thead><tr>
+          <th>灯箱编号</th><th>点位</th><th>供电回路</th><th>当前画面 / 广告主</th>
+          <th>亮灯计划</th><th>最近亮灯证据</th><th>状态结论</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 故障 ============ -->
+  <section id="tab-faults" class="panel">
+    <div class="panel-head">
+      <h2>故障与维修派单</h2>
+      <p class="hint">同一故障未关闭不得平行创建两张维修单；补播须由非上报人审批。</p>
+    </div>
+    <div class="split">
+      <div class="table-wrap fault-list">
+        <table id="faultTable">
+          <thead><tr><th>编号</th><th>灯箱</th><th>类别（文字结论）</th><th>状态</th><th>发现时间</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="faultDetail" class="detail">
+        <p class="empty">从左侧选择一张故障单查看计划时段与实际黑屏对照。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 巡检 / 信号台 ============ -->
+  <section id="tab-inspect" class="panel">
+    <div class="panel-head"><h2>巡检拍照 &amp; 模拟信号台</h2>
+      <p class="hint">巡查员在规定时间拍照；信号来自模拟适配器，可在信号台制造/恢复故障。</p>
+    </div>
+    <div class="cards">
+      <form id="inspectForm" class="card">
+        <h3>登记一次巡检</h3>
+        <label>灯箱<select name="lightbox_id" class="f-box"></select></label>
+        <label>巡查员<select name="inspector_id" class="f-inspector"></select></label>
+        <label>拍照时间<input type="datetime-local" name="ts" step="60"></label>
+        <label>备注<input name="note" placeholder="如：上数两条灯带不亮"></label>
+        <div class="signal-preview" id="signalPreview">读取适配器信号…</div>
+        <button type="submit" class="btn primary">拍照并判定</button>
+        <div class="form-result" id="inspectResult"></div>
+      </form>
+      <form id="signalForm" class="card">
+        <h3>模拟亮灯信号（适配器录制）</h3>
+        <label>灯箱<select name="lightbox_id" class="f-box"></select></label>
+        <label>亮度 <span class="val" id="brVal">100%</span>
+          <input type="range" name="brightness" min="0" max="1" step="0.25" value="1"></label>
+        <label>点亮灯带 <span class="val" id="barVal">4 / 4</span>
+          <input type="range" name="lit_bars" min="0" max="4" step="1" value="4"></label>
+        <label>信号起（时刻）<input type="datetime-local" name="set_at" step="60"></label>
+        <label>说明<input name="note" placeholder="如：两条灯带熄灭 / 环网柜缺相"></label>
+        <div class="row">
+          <button type="submit" class="btn">录制故障信号</button>
+          <button type="button" class="btn ghost" id="clearSignal">恢复计划信号</button>
+        </div>
+        <div class="form-result" id="signalResult"></div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+<div id="lightboxModal" class="modal hidden"><div class="modal-body">
+  <button class="modal-x" id="modalClose">×</button>
+  <div id="modalContent"></div>
+</div></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
